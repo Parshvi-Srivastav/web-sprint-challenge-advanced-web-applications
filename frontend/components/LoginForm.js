@@ -1,30 +1,35 @@
-import React, { useState } from 'react'
-import PT from 'prop-types'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import PT from 'prop-types';
+import { axiosWithAuth } from '../axios';
 
-const initialFormValues = {
-  username: '',
-  password: '',
-}
-export default function LoginForm(props) {
-  const [values, setValues] = useState(initialFormValues)
-  // ✨ where are my props? Destructure them here
+export default function LoginForm() {
+  const navigate = useNavigate();
+  const [values, setValues] = useState({
+    username: '',
+    password: '',
+  });
 
   const onChange = evt => {
-    const { id, value } = evt.target
-    setValues({ ...values, [id]: value })
-  }
+    const { id, value } = evt.target;
+    setValues({ ...values, [id]: value });
+  };
 
   const onSubmit = evt => {
-    evt.preventDefault()
-    // ✨ implement
-  }
+    evt.preventDefault();
+    axiosWithAuth().post('http://localhost:9000/api/login', values)
+      .then(res => {
+        localStorage.setItem("token", res.data.payload);
+        navigate('/Articles');
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
 
   const isDisabled = () => {
-    // ✨ implement
-    // Trimmed username must be >= 3, and
-    // trimmed password must be >= 8 for
-    // the button to become enabled
-  }
+    return values.username.trim().length < 3 || values.password.trim().length < 8;
+  };
 
   return (
     <form id="loginForm" onSubmit={onSubmit}>
@@ -45,10 +50,9 @@ export default function LoginForm(props) {
       />
       <button disabled={isDisabled()} id="submitCredentials">Submit credentials</button>
     </form>
-  )
+  );
 }
 
-// 🔥 No touchy: LoginForm expects the following props exactly:
 LoginForm.propTypes = {
-  login: PT.func.isRequired,
-}
+  login: PT.func.isRequired, 
+};
