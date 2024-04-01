@@ -1,34 +1,34 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import PT from 'prop-types';
-import { axiosWithAuth } from '../axios';
+import React, { useState } from "react";
+import PT from "prop-types";
 
-export default function LoginForm() {
-  const navigate = useNavigate();
-  const [values, setValues] = useState({
-    username: '',
-    password: '',
-  });
+const initialFormValues = {
+  username: "",
+  password: "",
+};
+export default function LoginForm(props) {
+  const [values, setValues] = useState(initialFormValues);
+  // ✨ where are my props?
+  const { login } = props;
 
-  const onChange = evt => {
+  const onChange = (evt) => {
     const { id, value } = evt.target;
     setValues({ ...values, [id]: value });
   };
 
-  const onSubmit = evt => {
+  const onSubmit = (evt) => {
     evt.preventDefault();
-    axiosWithAuth().post('http://localhost:9000/api/login', values)
-      .then(res => {
-        localStorage.setItem("token", res.data.payload);
-        navigate('/Articles');
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    // ✨ implement
+    login(values);
   };
 
   const isDisabled = () => {
-    return values.username.trim().length < 3 || values.password.trim().length < 8;
+    // ✨ implement
+    // Trimmed username must be >= 3, and
+    // trimmed password must be >= 8 for
+    // the button to become enabled
+    return (
+      values.username.trim().length < 3 || values.password.trim().length < 8
+    );
   };
 
   return (
@@ -48,11 +48,14 @@ export default function LoginForm() {
         placeholder="Enter password"
         id="password"
       />
-      <button disabled={isDisabled()} id="submitCredentials">Submit credentials</button>
+      <button disabled={isDisabled()} id="submitCredentials">
+        Submit credentials
+      </button>
     </form>
   );
 }
 
+// 🔥 No touchy: LoginForm expects the following props exactly:
 LoginForm.propTypes = {
-  login: PT.func.isRequired, 
+  login: PT.func.isRequired,
 };
